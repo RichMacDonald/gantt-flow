@@ -11,17 +11,16 @@ public class SubStep extends GanttStep {
 
 	/**
 	 * Construct a substep for the given owner {@link Step}.
-	 * 
+	 *
 	 * @param owner {@link Step} object. Not null.
 	 */
 	public SubStep(Step owner) {
-		setSubstep(true);
 		setOwner(Objects.requireNonNull(owner));
 	}
 
 	/**
 	 * Return a {@link Step} that this substep belongs to.
-	 * 
+	 *
 	 * @return {@link Step}
 	 */
 	public Step getOwner() {
@@ -39,5 +38,10 @@ public class SubStep extends GanttStep {
 		} else if (getOwner().getEndDate().isBefore(getEndDate())) {
 			getOwner().setEndDate(getEndDate());
 		}
+	}
+
+	@Override
+	public boolean isSubstep() {
+		return true;
 	}
 }

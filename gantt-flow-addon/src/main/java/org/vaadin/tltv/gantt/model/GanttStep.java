@@ -2,7 +2,7 @@ package org.vaadin.tltv.gantt.model;
 
 import org.vaadin.tltv.gantt.Gantt;
 import org.vaadin.tltv.gantt.element.StepElement;
-
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -24,7 +24,6 @@ public abstract class GanttStep {
     private boolean movable = true;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private boolean substep;
 
     /** Application specific optional identifier. */
     public Long getIdentifier() {
@@ -72,7 +71,7 @@ public abstract class GanttStep {
 
     /**
      * Get caption text.
-     * 
+     *
      * @return Caption text
      */
     public String getCaption() {
@@ -93,7 +92,7 @@ public abstract class GanttStep {
 
     /**
      * Sets a description text.
-     * 
+     *
      * @param description description text
      * @deprecated Not shown anywhere. Use {@link StepElement#addTooltip(String)}
      *             instead. Placeholder for backwards compatibility with Vaadin 8
@@ -124,7 +123,7 @@ public abstract class GanttStep {
 
     /**
      * Sets progress.
-     * 
+     *
      * @param progress Progress number
      * @deprecated Not shown anywhere. Use {@link StepElement#getElement()} to add a
      *             custom progress bar element and/or CSS to draw a progress bar.
@@ -140,7 +139,7 @@ public abstract class GanttStep {
 
     /**
      * Sets showProgress boolean flag.
-     * 
+     *
      * @param showProgress boolean
      * @deprecated Not shown anywhere. Use {@link StepElement#getElement()} to add a
      *             custom progress bar element and/or CSS to draw a progress bar.
@@ -167,7 +166,7 @@ public abstract class GanttStep {
     }
 
     /**
-     * Get inclusive start date and time time. 
+     * Get inclusive start date and time time.
      */
     public LocalDateTime getStartDate() {
         return startDate;
@@ -194,13 +193,7 @@ public abstract class GanttStep {
         this.endDate = endDate;
     }
 
-    public boolean isSubstep() {
-        return substep;
-    }
-
-    public void setSubstep(boolean substep) {
-        this.substep = substep;
-    }
+    public abstract boolean isSubstep();
 
     @Override
     public int hashCode() {
@@ -215,18 +208,27 @@ public abstract class GanttStep {
         if (obj == null) {
             return false;
         }
-        if (!(this instanceof GanttStep) || !(obj instanceof GanttStep)) {
+        if (!(obj instanceof GanttStep)) {
             return false;
         }
         GanttStep other = (GanttStep) obj;
         if (uid == null) {
-            if (other.uid != null) {
-                return false;
-            }
+        		//Should be false, as two separate instances may not yet have their uids set
+        	return false;
+//            if (other.uid != null) {
+//                return false;
+//            }
         } else if (!uid.equals(other.uid)) {
             return false;
         }
         return true;
+    }
+
+    public Duration getDuration() {
+    		if (startDate == null || endDate == null) {
+    			return null;
+    		}
+    		return Duration.between(startDate, endDate);
     }
 
 }

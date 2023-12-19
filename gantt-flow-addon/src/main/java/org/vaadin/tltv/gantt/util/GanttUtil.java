@@ -4,9 +4,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
+import java.util.Comparator;
 import java.util.Objects;
-
+import org.vaadin.tltv.gantt.Gantt;
+import org.vaadin.tltv.gantt.GanttTree;
 import org.vaadin.tltv.gantt.model.Resolution;
+import org.vaadin.tltv.gantt.model.Step;
 
 public class GanttUtil {
 
@@ -19,7 +22,7 @@ public class GanttUtil {
 
 	/**
 	 * Format given {@link TemporalAccessor} to datetime format yyyy-MM-ddTHH:mm:ss.
-	 * 
+	 *
 	 * @param temporal Target datetime
 	 * @return Formatted datetime
 	 */
@@ -30,10 +33,10 @@ public class GanttUtil {
 	public static TemporalAccessor parseDateTime(CharSequence text) {
 		return dateTimeFormatter.parse(text);
 	}
-	
+
 	/**
 	 * Format given {@link TemporalAccessor} to date format yyyy-MM-dd.
-	 * 
+	 *
 	 * @param temporal Target date
 	 * @return Formatted date
 	 */
@@ -44,7 +47,7 @@ public class GanttUtil {
 	public static TemporalAccessor parseDate(CharSequence text) {
 		return dateFormatter.parse(text);
 	}
-	
+
 	public static String formatDateHour(TemporalAccessor temporal) {
 		return dateHourFormatter.format(temporal);
 	}
@@ -52,7 +55,7 @@ public class GanttUtil {
 	public static TemporalAccessor parseDateHour(CharSequence text) {
 		return dateHourFormatter.parse(text);
 	}
-	
+
 	public static TemporalAccessor parse(CharSequence text) {
 		if(text.length() > 13) {
 			return parseDateTime(text);
@@ -61,7 +64,7 @@ public class GanttUtil {
 		}
 		return parseDate(text);
 	}
-	
+
 	public static LocalDateTime parseLocalDateTime(CharSequence text) {
 		return LocalDateTime.from(parseDateTime(text.subSequence(0, 19)));
 	}
@@ -71,7 +74,7 @@ public class GanttUtil {
 	 * ChronoUnit#DAYS} for Day and Week resoutions. Truncates to {@link
 	 * ChronoUnit#HOURS} for
 	 * Hour resoution.
-	 * 
+	 *
 	 * @param dateTime target datetime
 	 * @param resolution target resolution
 	 * @return Truncated {@link LocalDateTime} or null with a null date.
@@ -93,7 +96,7 @@ public class GanttUtil {
 	 * Hour resoution. Maximum can be <code>exclusive</code> which means that given
 	 * date or hour is either excluded with a <code>true</code> or included with
 	 * <code>false</code>.
-	 * 
+	 *
 	 * @param dateTime   target datetime
 	 * @param resolution target resolution
 	 * @param exclusive  exclusive maximum
@@ -113,5 +116,36 @@ public class GanttUtil {
 			dateTime = dateTime.minusDays(1);
 		}
 		return dateTime.plusDays(1).truncatedTo(ChronoUnit.DAYS).minusSeconds(1);
+	}
+
+
+
+	public static LocalDateTime getEarliestStepStart(Gantt gantt) {
+		return gantt.getSteps()
+				.map(Step::getStartDate)
+				.min(Comparator.naturalOrder())
+				.orElse(null);
+	}
+
+	public static LocalDateTime getLatestStepEnd(Gantt gantt) {
+		return gantt.getSteps()
+				.map(Step::getEndDate)
+				.max(Comparator.naturalOrder())
+				.orElse(null);
+	}
+
+	public static LocalDateTime clampStartDate(GanttTree gantt, LocalDateTime date) {
+		if (date == null) {
+			date = LocalDateTime.now();
+		}
+		LocalDateTime earliestStart = gantt.getStartDate().atStartOfDay();
+		if (date.isBefore(earliestStart)) {
+			return earliestStart;
+		}
+		LocalDateTime latestStart = gantt.getEndDate().atStartOfDay();
+		if (date.isAfter(latestStart)) {
+			return latestStart;
+		}
+		return date;
 	}
 }

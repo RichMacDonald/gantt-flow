@@ -45,12 +45,12 @@ public class GanttDemoView extends VerticalLayout {
 	private Gantt gantt;
 	private FlexLayout scrollWrapper;
 	private Grid<Step> grid;
-	
+
 	private DatePicker startDateField;
 	private DatePicker endDateField;
 	private TimePicker startTimeField;
 	private TimePicker endTimeField;
-	
+
 	private SizeOption size = SizeOption.FULL_WIDTH;
 	private int clickedBackgroundIndex;
 	private LocalDateTime clickedBackgroundDate;
@@ -59,11 +59,11 @@ public class GanttDemoView extends VerticalLayout {
 	public GanttDemoView() {
 		setWidthFull();
 		setPadding(false);
-		
+
 		gantt = createGantt();
 		gantt.setWidth("70%");
 		buildCaptionGrid();
-				
+
 		Div controlPanel = buildControlPanel();
 
 		scrollWrapper = new FlexLayout();
@@ -71,9 +71,9 @@ public class GanttDemoView extends VerticalLayout {
     	scrollWrapper.setMinHeight("0");
     	scrollWrapper.setWidthFull();
     	scrollWrapper.add(
-    			grid, 
+    			grid,
     			gantt);
-    	
+
         add(controlPanel, scrollWrapper);
 	}
 
@@ -96,13 +96,13 @@ public class GanttDemoView extends VerticalLayout {
 		step1.setBackgroundColor("#9cfb84");
 		step1.setStartDate(LocalDateTime.of(2020, 4, 7, 0, 0));
 		step1.setEndDate(LocalDateTime.of(2020, 4, 11, 0, 0));
-		
+
 		Step step2 = new Step();
 		step2.setCaption("New Step 2");
 		step2.setBackgroundColor("#a3d9ff");
 		step2.setStartDate(LocalDateTime.of(2020, 4, 7, 0, 0));
 		step2.setEndDate(LocalDateTime.of(2020, 4, 11, 0, 0));
-		
+
 		SubStep subStepA = new SubStep(step2);
 		subStepA.setCaption("R");
 		subStepA.setBackgroundColor("red");
@@ -121,47 +121,47 @@ public class GanttDemoView extends VerticalLayout {
 
 		gantt.addStep(step1);
 		gantt.addStep(step2);
-		
+
 		gantt.addSubStep(subStepA);
 		gantt.addSubStep(subStepB);
 		gantt.addSubStep(subStepC);
-		
+
 		gantt.addGanttClickListener(this::onGanttBackgroundClick);
 		gantt.addStepClickListener(this::onGanttStepClick);
 		gantt.addStepMoveListener(event -> {
 			Notification.show("Moved step : " + event.getAnyStep().getCaption());
-			
+
 			// dates and position are not synchronized automatically to server side model
 			event.getAnyStep().setStartDate(event.getStart());
 			event.getAnyStep().setEndDate(event.getEnd());
-			
+
 			gantt.moveStep(gantt.indexOf(event.getNewUid()), event.getAnyStep());
 		});
 		gantt.addStepResizeListener(event -> {
 			Notification.show("Resized step : " + event.getAnyStep().getCaption());
-			
+
 			event.getAnyStep().setStartDate(event.getStart());
 			event.getAnyStep().setEndDate(event.getEnd());
-			
+
 			if(event.getAnyStep().isSubstep()) {
 				((SubStep) event.getAnyStep()).updateOwnerDatesBySubStep();
 				event.getSource().refresh(((SubStep) event.getAnyStep()).getOwner().getUid());
 			}
 		});
-		
-		// Add tooltip for step1 
+
+		// Add tooltip for step1
 		gantt.getStepElement(step1.getUid()).addTooltip("Tooltip for " + step1.getCaption());
 		// and sub step A
 		gantt.getStepElement(subStepA.getUid()).addTooltip("Tooltip for " + subStepA.getCaption());
 
 		// Add dynamic context menu for gantt background. Clicked index is registered via addGanttClickListener and addStepClickListener.
 		addDynamicBackgroundContextMenu(gantt);
-        
+
 		// Add dynamic context menu for sub steps
 		addDynamicSubStepContextMenu(gantt.getStepElement(subStepA.getUid()));
 		addDynamicSubStepContextMenu(gantt.getStepElement(subStepB.getUid()));
 		addDynamicSubStepContextMenu(gantt.getStepElement(subStepC.getUid()));
-		
+
 		return gantt;
 	}
 
@@ -180,7 +180,7 @@ public class GanttDemoView extends VerticalLayout {
 					e -> onHandleRemoveStepContextMenuAction(targetStep.getUid()));
 		});
 	}
-	
+
 	private void addDynamicSubStepContextMenu(StepElement stepElement) {
 		stepElement.addContextMenu((contextMenu, uid) -> {
 			contextMenu.removeAll();
@@ -194,18 +194,18 @@ public class GanttDemoView extends VerticalLayout {
 					e -> onHandleRemoveStepContextMenuAction(uid));
 		});
 	}
-	
+
 	private void onHandleRemoveStepContextMenuAction(String uid) {
 		gantt.removeAnyStep(uid);
 	}
-	
+
 	private void onHandleAddSubStepContextMenuAction(String uid) {
 		var substep = createDefaultSubStep(uid);
 		gantt.addSubStep(substep);
 		addDynamicSubStepContextMenu(gantt.getStepElement(substep.getUid()));
-		
+
 	}
-	
+
 	private void onHandleAddStepContextMenuAction(int index, LocalDateTime startDate) {
 		var step = createDefaultNewStep();
 		if(startDate != null) {
@@ -214,7 +214,7 @@ public class GanttDemoView extends VerticalLayout {
 		}
 		gantt.addStep(index, step);
 	}
-	
+
 	private void onGanttBackgroundClick(GanttClickEvent event) {
 		clickedBackgroundIndex = event.getIndex() != null ? event.getIndex() : 0;
 		clickedBackgroundDate = event.getDate();
@@ -224,22 +224,22 @@ public class GanttDemoView extends VerticalLayout {
 			Notification.show("Clicked at index: " + event.getIndex() + " at date " + event.getDate().format(DateTimeFormatter.ofPattern("M/d/yyyy HH:mm")));
 		}
 	}
-	
+
 	private void onGanttStepClick(StepClickEvent event) {
 		clickedBackgroundIndex = event.getIndex();
 		Notification.show("Clicked step " + event.getAnyStep().getCaption());
 	}
-	
+
 	private Div buildControlPanel() {
     	Div div = new Div();
     	div.setWidthFull();
-    	
+
     	MenuBar menu = buildMenu();
     	HorizontalLayout tools = createTools();
     	div.add(menu, tools);
     	return div;
     }
-    
+
     private HorizontalLayout createTools() {
     	HorizontalLayout tools = new HorizontalLayout();
     	Select<Resolution> resolutionField = new Select<Resolution>();
@@ -257,30 +257,30 @@ public class GanttDemoView extends VerticalLayout {
 			}
 			setupToolsByResolution(event.getValue());
 		});
-    	
+
 		startDateField = new DatePicker(gantt.getStartDate());
 		startDateField.setLabel("Start Date");
 		startDateField.addValueChangeListener(event -> gantt.setStartDate(event.getValue()));
-    	
+
     	startTimeField = new TimePicker("Start Time", gantt.getStartDateTime().toLocalTime());
     	startTimeField.setWidth("8em");
     	startTimeField.addValueChangeListener(
 				event -> gantt.setStartDateTime(startDateField.getValue().atTime(event.getValue())));
-		
+
     	endDateField = new DatePicker(gantt.getEndDate());
     	endDateField.setLabel("End Date");
     	endDateField.addValueChangeListener(
 				event -> gantt.setEndDate(event.getValue()));
-		
+
 		endTimeField = new TimePicker("End Time (inclusive)", gantt.getEndDateTime().toLocalTime());
 		endTimeField.setWidth("8em");
 		endTimeField.addValueChangeListener(
 				event -> gantt.setEndDateTime(endDateField.getValue().atTime(event.getValue())));
-		
+
 		tools.add(resolutionField, startDateField, startTimeField, endDateField, endTimeField);
 		tools.add(createTimeZoneField(gantt));
 		tools.add(createLocaleField(gantt));
-		
+
 		setupToolsByResolution(gantt.getResolution());
 		return tools;
     }
@@ -294,7 +294,7 @@ public class GanttDemoView extends VerticalLayout {
 			endTimeField.setVisible(false);
 		}
 	}
-	
+
 	private ComboBox<String> createTimeZoneField(Gantt gantt) {
 		ComboBox<String> timeZoneField = new ComboBox<>("Timezone", getSupportedTimeZoneIds());
 		timeZoneField.setWidth("350px");
@@ -344,7 +344,7 @@ public class GanttDemoView extends VerticalLayout {
 		MenuItem size100x50 = size.getSubMenu().addItem(SizeOption.HALF_HEIGHT.getText());
 		size100x50.setCheckable(true);
 		size100x100.setChecked(this.size == SizeOption.HALF_HEIGHT);
-		
+
 		size100x100.addClickListener(event -> {
 			setSize(SizeOption.FULL_SIZE);
 			event.getSource().setChecked(true);
@@ -373,7 +373,7 @@ public class GanttDemoView extends VerticalLayout {
 			size100x100.setChecked(false);
 			size50x100.setChecked(false);
 		});
-		
+
 		MenuItem twelveHourClock = menuView.getSubMenu().addItem("Twelve hour clock");
 		twelveHourClock.addClickListener(event -> {
 			gantt.setTwelveHourClock(event.getSource().isChecked());
@@ -394,7 +394,7 @@ public class GanttDemoView extends VerticalLayout {
 		});
 		showMonth.setCheckable(true);
 		showMonth.setChecked(gantt.isMonthRowVisible());
-		
+
 		MenuItem showCaptionGrid = menuView.getSubMenu().addItem("Show Caption Grid");
 		showCaptionGrid.addClickListener(event -> {
 			if(event.getSource().isChecked()) {
@@ -411,34 +411,34 @@ public class GanttDemoView extends VerticalLayout {
 		showCaptionGrid.setChecked(grid.isVisible());
 
 		MenuItem menuEdit = menu.addItem("Edit");
-		
+
 		MenuItem movableSteps = menuEdit.getSubMenu().addItem("Movable steps");
 		movableSteps.addClickListener(event -> {
 			gantt.setMovableSteps(event.getSource().isChecked());
 		});
 		movableSteps.setCheckable(true);
 		movableSteps.setChecked(gantt.isMovableSteps());
-		
+
 		MenuItem resizableSteps = menuEdit.getSubMenu().addItem("Resizable steps");
 		resizableSteps.addClickListener(event -> {
 			gantt.setResizableSteps(event.getSource().isChecked());
 		});
 		resizableSteps.setCheckable(true);
 		resizableSteps.setChecked(gantt.isResizableSteps());
-		
+
 		MenuItem movableStepsBetweenRows = menuEdit.getSubMenu().addItem("Movable steps between rows");
 		movableStepsBetweenRows.addClickListener(event -> {
 			gantt.setMovableStepsBetweenRows(event.getSource().isChecked());
 		});
 		movableStepsBetweenRows.setCheckable(true);
 		movableStepsBetweenRows.setChecked(gantt.isMovableStepsBetweenRows());
-		
+
 		MenuItem menuAdd = menu.addItem("Add new Step");
 		menuAdd.addClickListener(event -> insertNewStep());
-		
+
 		return menu;
 	}
-	
+
 	private void setSize(SizeOption newSize) {
 		this.size = newSize;
 		switch (size) {
@@ -478,7 +478,7 @@ public class GanttDemoView extends VerticalLayout {
 			break;
 		}
 	}
-	
+
 	private ZoneId getDefaultTimeZone() {
 		ZoneId zone = ZoneId.systemDefault();
 		return zone;
@@ -490,7 +490,7 @@ public class GanttDemoView extends VerticalLayout {
 		items.addAll(Arrays.asList(TimeZone.getAvailableIDs()));
 		return items;
 	}
-	
+
 	private void insertNewStep() {
 		var step = createDefaultNewStep();
 		gantt.addStep(step);
@@ -504,7 +504,7 @@ public class GanttDemoView extends VerticalLayout {
 		step.setEndDate(LocalDateTime.of(2020, 4, 14, 0, 0));
 		return step;
 	}
-	
+
 	private SubStep createDefaultSubStep(String ownerUid) {
 		var owner = gantt.getStep(ownerUid);
 		SubStep substep = new SubStep(owner);
@@ -521,18 +521,18 @@ public class GanttDemoView extends VerticalLayout {
 		}
 		return substep;
 	}
-	
+
 	enum SizeOption {
 		FULL_SIZE("100% x 100%"),
 		FULL_WIDTH("100% x auto"),
 		HALF_WIDTH("50% x 100%"),
 		HALF_HEIGHT("100% x 50%");
-		
+
 		private String text;
 		private SizeOption(String text) {
 			this.text = text;
 		}
-		
+
 		public String getText() {
 			return text;
 		}

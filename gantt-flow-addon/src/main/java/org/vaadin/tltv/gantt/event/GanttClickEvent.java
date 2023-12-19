@@ -12,11 +12,13 @@ import com.vaadin.flow.component.EventData;
 @DomEvent("ganttBackgroundClick")
 public class GanttClickEvent extends ComponentEvent<Gantt> {
 
+	private static final long serialVersionUID = -2876487217164886928L;
+
 	private final Integer index;
 	private final Integer button;
 	private final LocalDateTime date;
-	
-	public GanttClickEvent(Gantt source, boolean fromClient, 
+
+	public GanttClickEvent(Gantt source, boolean fromClient,
 			@EventData("event.detail.index") Integer index,
 			@EventData("event.detail.date") String date,
 			@EventData("event.detail.event.button") Integer button) {
@@ -33,7 +35,7 @@ public class GanttClickEvent extends ComponentEvent<Gantt> {
 	public Integer getButton() {
 		return button;
 	}
-	
+
 	public LocalDateTime getDate() {
 		return date;
 	}
