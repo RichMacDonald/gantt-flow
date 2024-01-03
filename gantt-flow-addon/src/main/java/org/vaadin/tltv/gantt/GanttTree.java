@@ -18,7 +18,7 @@ import com.vaadin.flow.function.ValueProvider;
  * Only uses Steps, not SubSteps
  * Uses a TreeGrid
  */
-public class GanttTree extends Gantt{
+public class GanttTree extends Gantt {
 
 	private static final long serialVersionUID = -2929183300181012531L;
 
@@ -43,46 +43,53 @@ public class GanttTree extends Gantt{
 
 		grid.setDataProvider(dataProvider);
 
-//		grid.addColumn(LitRenderer.<Step>of("<span>${item.caption}</span>").withProperty("caption", Step::getCaption))
-//				.setHeader(header).setResizable(true);
+		// grid.addColumn(LitRenderer.<Step>of("<span>${item.caption}</span>").withProperty("caption", Step::getCaption))
+		// .setHeader(header).setResizable(true);
 		ValueProvider<Step, String> valueProv = Step::getCaption;
 		Column mainCol = grid.addHierarchyColumn(valueProv).setHeader(header);
 		mainCol.setAutoWidth(true);
 		mainCol.setResizable(true);
 
 		captionGridColumnResizeListener = grid.addColumnResizeListener(event -> {
-			if(event.isFromClient()) {
+			if (event.isFromClient()) {
 				refreshForHorizontalScrollbar();
 			}
 		});
-//		grid.setItems(dataProvider);
+		// grid.setItems(dataProvider);
 		captionGridDataChangeListener = addDataChangeListener(event -> {
-//			grid.getLazyDataView().refreshAll();
+			// grid.getLazyDataView().refreshAll();
 			refreshForHorizontalScrollbar();
 		});
 		getElement().executeJs("this.registerScrollElement($0.$.table)", grid);
 		refreshForHorizontalScrollbar();
 
-		//TODO: Dec 19, 2023 RJM turn these into method refs. Having trouble with generics?
-		grid.addCollapseListener(new ComponentEventListener<CollapseEvent<Step, TreeGrid<Step>>>(){
+		// TODO: Dec 19, 2023 RJM turn these into method refs. Having trouble with generics?
+		grid.addCollapseListener(new ComponentEventListener<CollapseEvent<Step, TreeGrid<Step>>>() {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onComponentEvent(CollapseEvent<Step, TreeGrid<Step>> event) {
 				onCollapsed(event.getItems().iterator().next());
-			}});
+			}
+		});
 
-		grid.addExpandListener(new  ComponentEventListener<ExpandEvent<Step, TreeGrid<Step>>>(){
+		grid.addExpandListener(new ComponentEventListener<ExpandEvent<Step, TreeGrid<Step>>>() {
+
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onComponentEvent(ExpandEvent<Step, TreeGrid<Step>> event) {
 				onExpanded(event.getItems().iterator().next());
 			}
-			});
+		});
 
 		return grid;
 	}
 
 	void onCollapsed(Step collapsedParent) {
 		removeSteps(collapsedParent.getDescendants().stream());
-		if(captionGrid != null) {
+		if (captionGrid != null) {
 			captionGrid.recalculateColumnWidths();
 		}
 	}
@@ -92,14 +99,14 @@ public class GanttTree extends Gantt{
 		for (Step child : expandedParent.getChildren()) {
 			addStep(++parentIndex, child);
 		}
-		if(captionGrid != null) {
+		if (captionGrid != null) {
 			captionGrid.recalculateColumnWidths();
 		}
 	}
 
 	@Override
 	public void addSubStep(SubStep subStep) {
-    throw new IllegalArgumentException("Not supporting SubSteps");
+		throw new IllegalArgumentException("Not supporting SubSteps");
 	}
 
 	@Override

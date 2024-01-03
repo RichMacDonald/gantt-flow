@@ -1,6 +1,5 @@
 package org.vaadin.tltv.gantt;
 
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +13,6 @@ import java.util.Random;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.vaadin.tltv.gantt.GanttTree;
 import org.vaadin.tltv.gantt.element.StepElement;
 import org.vaadin.tltv.gantt.event.GanttClickEvent;
 import org.vaadin.tltv.gantt.event.StepClickEvent;
@@ -119,7 +117,7 @@ public class GanttTreeDemoView extends VerticalLayout {
 
 			private List<Step> getRootSteps() {
 				return gantt.getSteps()
-				    .filter(treeStep -> treeStep.isRoot())
+				    .filter(Step::isRoot)
 				    .collect(Collectors.toList());
 			}
 		};
@@ -366,7 +364,7 @@ public class GanttTreeDemoView extends VerticalLayout {
 
 	private HorizontalLayout createTools() {
 		HorizontalLayout tools = new HorizontalLayout();
-		Select<Resolution> resolutionField = new Select<Resolution>();
+		Select<Resolution> resolutionField = new Select<>();
 		resolutionField.setItems(Resolution.values());
 		resolutionField.setLabel("Resolution");
 		resolutionField.setValue(gantt.getResolution());
@@ -459,7 +457,7 @@ public class GanttTreeDemoView extends VerticalLayout {
 		ComboBox<Locale> localeField = new ComboBox<>("Locale",
 		    Stream.of(Locale.getAvailableLocales()).collect(Collectors.toList()));
 		localeField.setWidth("350px");
-		localeField.setItemLabelGenerator((l) -> l.getDisplayName(UI.getCurrent().getLocale()));
+		localeField.setItemLabelGenerator(l -> l.getDisplayName(UI.getCurrent().getLocale()));
 		localeField.setValue(gantt.getLocale());
 		localeField.addValueChangeListener(e -> Optional.ofNullable(e.getValue()).ifPresent(l -> gantt.setLocale(l)));
 		return localeField;
@@ -727,8 +725,8 @@ public class GanttTreeDemoView extends VerticalLayout {
 		HALF_WIDTH("50% x 100%"),
 		HALF_HEIGHT("100% x 50%");
 
-		private String text;
-		private SizeOption(String text) {
+		private final String text;
+		SizeOption(String text) {
 			this.text = text;
 		}
 

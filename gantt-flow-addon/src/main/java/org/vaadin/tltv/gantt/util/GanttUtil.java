@@ -23,7 +23,8 @@ public class GanttUtil {
 	/**
 	 * Format given {@link TemporalAccessor} to datetime format yyyy-MM-ddTHH:mm:ss.
 	 *
-	 * @param temporal Target datetime
+	 * @param temporal
+	 *          Target datetime
 	 * @return Formatted datetime
 	 */
 	public static String formatDateTime(TemporalAccessor temporal) {
@@ -37,7 +38,8 @@ public class GanttUtil {
 	/**
 	 * Format given {@link TemporalAccessor} to date format yyyy-MM-dd.
 	 *
-	 * @param temporal Target date
+	 * @param temporal
+	 *          Target date
 	 * @return Formatted date
 	 */
 	public static String formatDate(TemporalAccessor temporal) {
@@ -57,9 +59,10 @@ public class GanttUtil {
 	}
 
 	public static TemporalAccessor parse(CharSequence text) {
-		if(text.length() > 13) {
+		if (text.length() > 13) {
 			return parseDateTime(text);
-		} else if(text.length() > 10) {
+		}
+		if (text.length() > 10) {
 			return parseDateHour(text);
 		}
 		return parseDate(text);
@@ -75,8 +78,10 @@ public class GanttUtil {
 	 * ChronoUnit#HOURS} for
 	 * Hour resoution.
 	 *
-	 * @param dateTime target datetime
-	 * @param resolution target resolution
+	 * @param dateTime
+	 *          target datetime
+	 * @param resolution
+	 *          target resolution
 	 * @return Truncated {@link LocalDateTime} or null with a null date.
 	 */
 	public static LocalDateTime resetTimeToMin(LocalDateTime dateTime, Resolution resolution) {
@@ -97,9 +102,12 @@ public class GanttUtil {
 	 * date or hour is either excluded with a <code>true</code> or included with
 	 * <code>false</code>.
 	 *
-	 * @param dateTime   target datetime
-	 * @param resolution target resolution
-	 * @param exclusive  exclusive maximum
+	 * @param dateTime
+	 *          target datetime
+	 * @param resolution
+	 *          target resolution
+	 * @param exclusive
+	 *          exclusive maximum
 	 * @return Adjusted {@link LocalDateTime} or null with a null date.
 	 */
 	public static LocalDateTime resetTimeToMax(LocalDateTime dateTime, Resolution resolution, boolean exclusive) {
@@ -118,20 +126,18 @@ public class GanttUtil {
 		return dateTime.plusDays(1).truncatedTo(ChronoUnit.DAYS).minusSeconds(1);
 	}
 
-
-
 	public static LocalDateTime getEarliestStepStart(Gantt gantt) {
 		return gantt.getSteps()
-				.map(Step::getStartDate)
-				.min(Comparator.naturalOrder())
-				.orElse(null);
+		    .map(Step::getStartDate)
+		    .min(Comparator.naturalOrder())
+		    .orElse(null);
 	}
 
 	public static LocalDateTime getLatestStepEnd(Gantt gantt) {
 		return gantt.getSteps()
-				.map(Step::getEndDate)
-				.max(Comparator.naturalOrder())
-				.orElse(null);
+		    .map(Step::getEndDate)
+		    .max(Comparator.naturalOrder())
+		    .orElse(null);
 	}
 
 	public static LocalDateTime clampStartDate(GanttTree gantt, LocalDateTime date) {

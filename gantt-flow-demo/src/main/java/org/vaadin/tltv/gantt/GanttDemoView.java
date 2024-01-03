@@ -14,14 +14,12 @@ import java.util.Random;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.vaadin.tltv.gantt.element.StepElement;
 import org.vaadin.tltv.gantt.event.GanttClickEvent;
 import org.vaadin.tltv.gantt.event.StepClickEvent;
 import org.vaadin.tltv.gantt.model.Resolution;
 import org.vaadin.tltv.gantt.model.Step;
 import org.vaadin.tltv.gantt.model.SubStep;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
@@ -42,8 +40,9 @@ import com.vaadin.flow.router.Route;
 @Route("")
 public class GanttDemoView extends VerticalLayout {
 
-	private Gantt gantt;
-	private FlexLayout scrollWrapper;
+	private static final long serialVersionUID = 1L;
+	private final Gantt gantt;
+	private final FlexLayout scrollWrapper;
 	private Grid<Step> grid;
 
 	private DatePicker startDateField;
@@ -67,14 +66,14 @@ public class GanttDemoView extends VerticalLayout {
 		Div controlPanel = buildControlPanel();
 
 		scrollWrapper = new FlexLayout();
-    	scrollWrapper.setId("scroll-wrapper");
-    	scrollWrapper.setMinHeight("0");
-    	scrollWrapper.setWidthFull();
-    	scrollWrapper.add(
-    			grid,
-    			gantt);
+		scrollWrapper.setId("scroll-wrapper");
+		scrollWrapper.setMinHeight("0");
+		scrollWrapper.setWidthFull();
+		scrollWrapper.add(
+		    grid,
+		    gantt);
 
-        add(controlPanel, scrollWrapper);
+		add(controlPanel, scrollWrapper);
 	}
 
 	private void buildCaptionGrid() {
@@ -143,7 +142,7 @@ public class GanttDemoView extends VerticalLayout {
 			event.getAnyStep().setStartDate(event.getStart());
 			event.getAnyStep().setEndDate(event.getEnd());
 
-			if(event.getAnyStep().isSubstep()) {
+			if (event.getAnyStep().isSubstep()) {
 				((SubStep) event.getAnyStep()).updateOwnerDatesBySubStep();
 				event.getSource().refresh(((SubStep) event.getAnyStep()).getOwner().getUid());
 			}
@@ -171,13 +170,13 @@ public class GanttDemoView extends VerticalLayout {
 		gantt.getElement().addEventListener("vaadin-context-menu-before-open", event -> {
 			backgroundContextMenu.removeAll();
 			backgroundContextMenu.addItem("Add step at index " + clickedBackgroundIndex,
-					e -> onHandleAddStepContextMenuAction(clickedBackgroundIndex, clickedBackgroundDate));
+			    e -> onHandleAddStepContextMenuAction(clickedBackgroundIndex, clickedBackgroundDate));
 			var targetStep = gantt.getStepsList().get(clickedBackgroundIndex);
 			backgroundContextMenu.addItem("Add sub-step for " + targetStep.getCaption(),
-					e -> onHandleAddSubStepContextMenuAction(targetStep.getUid()));
+			    e -> onHandleAddSubStepContextMenuAction(targetStep.getUid()));
 			backgroundContextMenu.add(new Hr());
 			backgroundContextMenu.addItem("Remove step " + targetStep.getCaption(),
-					e -> onHandleRemoveStepContextMenuAction(targetStep.getUid()));
+			    e -> onHandleRemoveStepContextMenuAction(targetStep.getUid()));
 		});
 	}
 
@@ -185,13 +184,13 @@ public class GanttDemoView extends VerticalLayout {
 		stepElement.addContextMenu((contextMenu, uid) -> {
 			contextMenu.removeAll();
 			contextMenu.addItem("Add step at index " + clickedBackgroundIndex,
-					e -> onHandleAddStepContextMenuAction(clickedBackgroundIndex, stepElement.getStartDateTime()));
+			    e -> onHandleAddStepContextMenuAction(clickedBackgroundIndex, stepElement.getStartDateTime()));
 			var targetStep = gantt.getStepsList().get(clickedBackgroundIndex);
 			contextMenu.addItem("Add sub-step for " + targetStep.getCaption(),
-					e -> onHandleAddSubStepContextMenuAction(targetStep.getUid()));
+			    e -> onHandleAddSubStepContextMenuAction(targetStep.getUid()));
 			contextMenu.add(new Hr());
 			contextMenu.addItem("Remove step " + stepElement.getCaption(),
-					e -> onHandleRemoveStepContextMenuAction(uid));
+			    e -> onHandleRemoveStepContextMenuAction(uid));
 		});
 	}
 
@@ -208,7 +207,7 @@ public class GanttDemoView extends VerticalLayout {
 
 	private void onHandleAddStepContextMenuAction(int index, LocalDateTime startDate) {
 		var step = createDefaultNewStep();
-		if(startDate != null) {
+		if (startDate != null) {
 			step.setStartDate(startDate);
 			step.setEndDate(startDate.plusDays(7));
 		}
@@ -218,7 +217,7 @@ public class GanttDemoView extends VerticalLayout {
 	private void onGanttBackgroundClick(GanttClickEvent event) {
 		clickedBackgroundIndex = event.getIndex() != null ? event.getIndex() : 0;
 		clickedBackgroundDate = event.getDate();
-		if(event.getButton() == 2) {
+		if (event.getButton() == 2) {
 			Notification.show("Clicked with mouse 2 at index: " + event.getIndex());
 		} else {
 			Notification.show("Clicked at index: " + event.getIndex() + " at date " + event.getDate().format(DateTimeFormatter.ofPattern("M/d/yyyy HH:mm")));
@@ -231,29 +230,29 @@ public class GanttDemoView extends VerticalLayout {
 	}
 
 	private Div buildControlPanel() {
-    	Div div = new Div();
-    	div.setWidthFull();
+		Div div = new Div();
+		div.setWidthFull();
 
-    	MenuBar menu = buildMenu();
-    	HorizontalLayout tools = createTools();
-    	div.add(menu, tools);
-    	return div;
-    }
+		MenuBar menu = buildMenu();
+		HorizontalLayout tools = createTools();
+		div.add(menu, tools);
+		return div;
+	}
 
-    private HorizontalLayout createTools() {
-    	HorizontalLayout tools = new HorizontalLayout();
-    	Select<Resolution> resolutionField = new Select<Resolution>();
+	private HorizontalLayout createTools() {
+		HorizontalLayout tools = new HorizontalLayout();
+		Select<Resolution> resolutionField = new Select<>();
 		resolutionField.setItems(Resolution.values());
-    	resolutionField.setLabel("Resolution");
+		resolutionField.setLabel("Resolution");
 		resolutionField.setValue(gantt.getResolution());
 		resolutionField.addValueChangeListener(event -> {
 			gantt.setResolution(event.getValue());
-			if(event.getValue() == Resolution.Hour) {
+			if (event.getValue() == Resolution.Hour) {
 				gantt.setStartDateTime(startDateField.getValue().atTime(startTimeField.getValue()));
 				gantt.setEndDateTime(endDateField.getValue().atTime(endTimeField.getValue()));
 			} else {
-				 gantt.setStartDate(startDateField.getValue());
-				 gantt.setEndDate(endDateField.getValue());
+				gantt.setStartDate(startDateField.getValue());
+				gantt.setEndDate(endDateField.getValue());
 			}
 			setupToolsByResolution(event.getValue());
 		});
@@ -262,20 +261,20 @@ public class GanttDemoView extends VerticalLayout {
 		startDateField.setLabel("Start Date");
 		startDateField.addValueChangeListener(event -> gantt.setStartDate(event.getValue()));
 
-    	startTimeField = new TimePicker("Start Time", gantt.getStartDateTime().toLocalTime());
-    	startTimeField.setWidth("8em");
-    	startTimeField.addValueChangeListener(
-				event -> gantt.setStartDateTime(startDateField.getValue().atTime(event.getValue())));
+		startTimeField = new TimePicker("Start Time", gantt.getStartDateTime().toLocalTime());
+		startTimeField.setWidth("8em");
+		startTimeField.addValueChangeListener(
+		    event -> gantt.setStartDateTime(startDateField.getValue().atTime(event.getValue())));
 
-    	endDateField = new DatePicker(gantt.getEndDate());
-    	endDateField.setLabel("End Date");
-    	endDateField.addValueChangeListener(
-				event -> gantt.setEndDate(event.getValue()));
+		endDateField = new DatePicker(gantt.getEndDate());
+		endDateField.setLabel("End Date");
+		endDateField.addValueChangeListener(
+		    event -> gantt.setEndDate(event.getValue()));
 
 		endTimeField = new TimePicker("End Time (inclusive)", gantt.getEndDateTime().toLocalTime());
 		endTimeField.setWidth("8em");
 		endTimeField.addValueChangeListener(
-				event -> gantt.setEndDateTime(endDateField.getValue().atTime(event.getValue())));
+		    event -> gantt.setEndDateTime(endDateField.getValue().atTime(event.getValue())));
 
 		tools.add(resolutionField, startDateField, startTimeField, endDateField, endTimeField);
 		tools.add(createTimeZoneField(gantt));
@@ -283,10 +282,10 @@ public class GanttDemoView extends VerticalLayout {
 
 		setupToolsByResolution(gantt.getResolution());
 		return tools;
-    }
+	}
 
 	private void setupToolsByResolution(Resolution value) {
-		if(Resolution.Hour.equals(value)) {
+		if (Resolution.Hour.equals(value)) {
 			startTimeField.setVisible(true);
 			endTimeField.setVisible(true);
 		} else {
@@ -302,7 +301,7 @@ public class GanttDemoView extends VerticalLayout {
 		timeZoneField.setItemLabelGenerator(item -> {
 			if ("Default".equals(item)) {
 				return "Default (" + getDefaultTimeZone().getDisplayName(TextStyle.FULL, UI.getCurrent().getLocale())
-						+ ")";
+				    + ")";
 			}
 			TimeZone tz = TimeZone.getTimeZone(item);
 			return tz.getID() + " (raw offset " + (tz.getRawOffset() / 60000) + "m)";
@@ -319,9 +318,9 @@ public class GanttDemoView extends VerticalLayout {
 
 	private ComboBox<Locale> createLocaleField(Gantt gantt) {
 		ComboBox<Locale> localeField = new ComboBox<>("Locale",
-				Stream.of(Locale.getAvailableLocales()).collect(Collectors.toList()));
+		    Stream.of(Locale.getAvailableLocales()).collect(Collectors.toList()));
 		localeField.setWidth("350px");
-		localeField.setItemLabelGenerator((l) -> l.getDisplayName(UI.getCurrent().getLocale()));
+		localeField.setItemLabelGenerator(l -> l.getDisplayName(UI.getCurrent().getLocale()));
 		localeField.setValue(gantt.getLocale());
 		localeField.addValueChangeListener(e -> Optional.ofNullable(e.getValue()).ifPresent(l -> gantt.setLocale(l)));
 		return localeField;
@@ -397,7 +396,7 @@ public class GanttDemoView extends VerticalLayout {
 
 		MenuItem showCaptionGrid = menuView.getSubMenu().addItem("Show Caption Grid");
 		showCaptionGrid.addClickListener(event -> {
-			if(event.getSource().isChecked()) {
+			if (event.getSource().isChecked()) {
 				buildCaptionGrid();
 				scrollWrapper.addComponentAsFirst(grid);
 			} else {
@@ -442,40 +441,40 @@ public class GanttDemoView extends VerticalLayout {
 	private void setSize(SizeOption newSize) {
 		this.size = newSize;
 		switch (size) {
-		case FULL_SIZE:
-			setSizeFull();
-			gantt.setWidth("70%");
-			grid.setWidth("30%");
-			gantt.setHeight("100%");
-			grid.setHeight("100%");
-			setFlexGrow(1, scrollWrapper);
-			break;
-		case FULL_WIDTH:
-			setWidthFull();
-			setHeight(null);
-			gantt.setWidth("70%");
-			grid.setWidth("30%");
-			gantt.setHeight(null);
-			grid.setHeight(null);
-			grid.setAllRowsVisible(true);
-			setFlexGrow(0, scrollWrapper);
-			break;
-		case HALF_WIDTH:
-			setSizeFull();
-			gantt.setWidth("40%");
-			grid.setWidth("10%");
-			gantt.setHeight("100%");
-			grid.setHeight("100%");
-			setFlexGrow(1, scrollWrapper);
-			break;
-		case HALF_HEIGHT:
-			setSizeFull();
-			gantt.setWidth("70%");
-			grid.setWidth("30%");
-			gantt.setHeight("50%");
-			grid.setHeight("50%");
-			setFlexGrow(1, scrollWrapper);
-			break;
+			case FULL_SIZE:
+				setSizeFull();
+				gantt.setWidth("70%");
+				grid.setWidth("30%");
+				gantt.setHeight("100%");
+				grid.setHeight("100%");
+				setFlexGrow(1, scrollWrapper);
+				break;
+			case FULL_WIDTH:
+				setWidthFull();
+				setHeight(null);
+				gantt.setWidth("70%");
+				grid.setWidth("30%");
+				gantt.setHeight(null);
+				grid.setHeight(null);
+				grid.setAllRowsVisible(true);
+				setFlexGrow(0, scrollWrapper);
+				break;
+			case HALF_WIDTH:
+				setSizeFull();
+				gantt.setWidth("40%");
+				grid.setWidth("10%");
+				gantt.setHeight("100%");
+				grid.setHeight("100%");
+				setFlexGrow(1, scrollWrapper);
+				break;
+			case HALF_HEIGHT:
+				setSizeFull();
+				gantt.setWidth("70%");
+				grid.setWidth("30%");
+				gantt.setHeight("50%");
+				grid.setHeight("50%");
+				setFlexGrow(1, scrollWrapper);
+				break;
 		}
 	}
 
@@ -510,7 +509,7 @@ public class GanttDemoView extends VerticalLayout {
 		SubStep substep = new SubStep(owner);
 		substep.setCaption("New Sub Step");
 		substep.setBackgroundColor(String.format("#%06x", new Random().nextInt(0xffffff + 1)));
-		if(gantt.getSubStepElements(ownerUid).count() == 0) {
+		if (gantt.getSubStepElements(ownerUid).count() == 0) {
 			substep.setStartDate(owner.getStartDate());
 			substep.setEndDate(owner.getEndDate());
 		} else {
@@ -523,13 +522,14 @@ public class GanttDemoView extends VerticalLayout {
 	}
 
 	enum SizeOption {
+
 		FULL_SIZE("100% x 100%"),
 		FULL_WIDTH("100% x auto"),
 		HALF_WIDTH("50% x 100%"),
 		HALF_HEIGHT("100% x 50%");
 
-		private String text;
-		private SizeOption(String text) {
+		private final String text;
+		SizeOption(String text) {
 			this.text = text;
 		}
 

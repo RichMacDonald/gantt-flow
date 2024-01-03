@@ -12,7 +12,8 @@ public class SubStep extends GanttStep {
 	/**
 	 * Construct a substep for the given owner {@link Step}.
 	 *
-	 * @param owner {@link Step} object. Not null.
+	 * @param owner
+	 *          {@link Step} object. Not null.
 	 */
 	public SubStep(Step owner) {
 		setOwner(Objects.requireNonNull(owner));

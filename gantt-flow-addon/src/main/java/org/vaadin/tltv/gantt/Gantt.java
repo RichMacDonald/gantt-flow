@@ -22,6 +22,7 @@
 
 package org.vaadin.tltv.gantt;
 
+import static java.util.Optional.ofNullable;
 import java.text.DateFormatSymbols;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -38,7 +39,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.vaadin.tltv.gantt.element.StepElement;
 import org.vaadin.tltv.gantt.event.GanttClickEvent;
 import org.vaadin.tltv.gantt.event.GanttDataChangeEvent;
@@ -50,7 +50,6 @@ import org.vaadin.tltv.gantt.model.Resolution;
 import org.vaadin.tltv.gantt.model.Step;
 import org.vaadin.tltv.gantt.model.SubStep;
 import org.vaadin.tltv.gantt.util.GanttUtil;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasSize;
@@ -61,11 +60,8 @@ import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.shared.Registration;
-
 import elemental.json.JsonArray;
 import elemental.json.impl.JreJsonFactory;
-
-import static java.util.Optional.ofNullable;
 
 /**
  * Gantt is a component that shows Gantt chart which is by definition
@@ -85,6 +81,8 @@ import static java.util.Optional.ofNullable;
 @JsModule("tltv-gantt-element/dist/src/gantt-element.js")
 @CssImport(value = "gantt-grid.css", themeFor = "vaadin-grid")
 public class Gantt extends Component implements HasSize {
+
+	private static final long serialVersionUID = 1L;
 
 	private final JreJsonFactory jsonFactory = new JreJsonFactory();
 
@@ -116,11 +114,12 @@ public class Gantt extends Component implements HasSize {
 	 * {@link Resolution#Hour}, {@link Resolution#Day} and
 	 * {@link Resolution#Week}.
 	 *
-	 * @param resolution {@link Resolution} enum. Not null.
+	 * @param resolution
+	 *          {@link Resolution} enum. Not null.
 	 */
 	public void setResolution(Resolution resolution) {
 		getElement().setAttribute("resolution",
-				Objects.requireNonNull(resolution, "Setting null Resolution is not allowed").name());
+		    Objects.requireNonNull(resolution, "Setting null Resolution is not allowed").name());
 		refreshForHorizontalScrollbar();
 	}
 
@@ -139,11 +138,12 @@ public class Gantt extends Component implements HasSize {
 	 * updates month names, week day names and first day of week based on the
 	 * {@link Locale}.
 	 *
-	 * @param locale New {@link Locale}. Should not be null.
+	 * @param locale
+	 *          New {@link Locale}. Should not be null.
 	 */
 	public void setLocale(Locale locale) {
 		getElement().setAttribute("locale",
-				Objects.requireNonNull(locale, "Setting null Locale is not allowed").toLanguageTag());
+		    Objects.requireNonNull(locale, "Setting null Locale is not allowed").toLanguageTag());
 		setupByLocale();
 	}
 
@@ -164,11 +164,12 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Set {@link TimeZone}.
 	 *
-	 * @param timeZone New {@link TimeZone}. Should not be null.
+	 * @param timeZone
+	 *          New {@link TimeZone}. Should not be null.
 	 */
 	public void setTimeZone(TimeZone timeZone) {
 		getElement().setAttribute("zone",
-				Objects.requireNonNull(timeZone, "Setting null TimeZone is not allowed").getID());
+		    Objects.requireNonNull(timeZone, "Setting null TimeZone is not allowed").getID());
 	}
 
 	/**
@@ -185,7 +186,8 @@ public class Gantt extends Component implements HasSize {
 	 * Set start date of the timeline. Call this only with {@link Resolution#Day}
 	 * and {@link Resolution#Week}.
 	 *
-	 * @param startDate Inclusive {@link LocaDate}. Not null.
+	 * @param startDate
+	 *          Inclusive {@link LocaDate}. Not null.
 	 */
 	public void setStartDate(LocalDate startDate) {
 		Objects.requireNonNull(startDate, "Setting null start date is not allowed");
@@ -196,7 +198,8 @@ public class Gantt extends Component implements HasSize {
 	 * Set start date and time of the timeline. Call this only with
 	 * {@link Resolution#Hour}.
 	 *
-	 * @param startDate Inclusive {@link LocaDateTime}. Not null.
+	 * @param startDate
+	 *          Inclusive {@link LocaDateTime}. Not null.
 	 */
 	public void setStartDateTime(LocalDateTime startDateTime) {
 		Objects.requireNonNull(startDateTime, "Setting null start date time is not allowed");
@@ -220,7 +223,7 @@ public class Gantt extends Component implements HasSize {
 	 * @return Inclusive {@link LocaDateTime}
 	 */
 	public LocalDateTime getStartDateTime() {
-		if(getResolution() == Resolution.Hour) {
+		if (getResolution() == Resolution.Hour) {
 			return LocalDateTime.from(GanttUtil.parse(getElement().getAttribute("start")));
 		}
 		return LocalDateTime.of(getStartDate(), LocalTime.MIN);
@@ -230,7 +233,8 @@ public class Gantt extends Component implements HasSize {
 	 * Set end date of the timeline. Call this only with {@link Resolution#Day}
 	 * and {@link Resolution#Week}.
 	 *
-	 * @param endDate Inclusive {@link LocaDate}. Not null.
+	 * @param endDate
+	 *          Inclusive {@link LocaDate}. Not null.
 	 */
 	public void setEndDate(LocalDate endDate) {
 		Objects.requireNonNull(endDate, "Setting null end date is not allowed");
@@ -241,7 +245,8 @@ public class Gantt extends Component implements HasSize {
 	 * Set end date and time of the timeline. Call this only with
 	 * {@link Resolution#Hour}.
 	 *
-	 * @param endDateTime Inclusive {@link LocaDateTime}. Not null.
+	 * @param endDateTime
+	 *          Inclusive {@link LocaDateTime}. Not null.
 	 */
 	public void setEndDateTime(LocalDateTime endDateTime) {
 		Objects.requireNonNull(endDateTime, "Setting null end date time is not allowed");
@@ -265,7 +270,7 @@ public class Gantt extends Component implements HasSize {
 	 * @return Inclusive {@link LocaDateTime}
 	 */
 	public LocalDateTime getEndDateTime() {
-		if(getResolution() == Resolution.Hour) {
+		if (getResolution() == Resolution.Hour) {
 			return LocalDateTime.from(GanttUtil.parse(getElement().getAttribute("end")));
 		}
 		return LocalDateTime.of(getEndDate(), LocalTime.MIN);
@@ -287,8 +292,9 @@ public class Gantt extends Component implements HasSize {
 	 * Set value of twelve hour clock boolean flag to the web component's
 	 * <code>twelveHourClock</code> attribute.
 	 *
-	 * @param enabled <code>true</code> when <code>twelveHourClock</code> is enabled
-	 *                and false otherwise
+	 * @param enabled
+	 *          <code>true</code> when <code>twelveHourClock</code> is enabled
+	 *          and false otherwise
 	 */
 	public void setTwelveHourClock(boolean enabled) {
 		getElement().setProperty("twelveHourClock", enabled);
@@ -365,10 +371,11 @@ public class Gantt extends Component implements HasSize {
 	 * Add new step components based on the given collection of step descriptors.
 	 * New components are appended at the end.
 	 *
-	 * @param steps a collection of step descriptor objects for the new components.
+	 * @param steps
+	 *          a collection of step descriptor objects for the new components.
 	 */
 	public void addSteps(Collection<Step> steps) {
-		if(steps != null) {
+		if (steps != null) {
 			addSteps(steps.stream());
 		}
 	}
@@ -377,10 +384,11 @@ public class Gantt extends Component implements HasSize {
 	 * Add new step components based on the given varargs of step descriptors. New
 	 * components are appended at the end.
 	 *
-	 * @param steps a varargs of step descriptor objects for the new components.
+	 * @param steps
+	 *          a varargs of step descriptor objects for the new components.
 	 */
 	public void addSteps(Step... steps) {
-		if(steps != null) {
+		if (steps != null) {
 			addSteps(Stream.of(steps));
 		}
 	}
@@ -389,10 +397,11 @@ public class Gantt extends Component implements HasSize {
 	 * Add new step components based on the given stream of step descriptors. New
 	 * components are appended at the end.
 	 *
-	 * @param steps a stream of step descriptor objects for the new components.
+	 * @param steps
+	 *          a stream of step descriptor objects for the new components.
 	 */
 	public void addSteps(Stream<Step> steps) {
-		if(steps == null) {
+		if (steps == null) {
 			return;
 		}
 		steps.forEach(this::appendStep);
@@ -403,7 +412,8 @@ public class Gantt extends Component implements HasSize {
 	 * Add new step component based on the given step descriptor. New component is
 	 * appended at the end.
 	 *
-	 * @param step a step descriptor object for the new component
+	 * @param step
+	 *          a step descriptor object for the new component
 	 */
 	public void addStep(Step step) {
 		appendStep(step);
@@ -414,11 +424,12 @@ public class Gantt extends Component implements HasSize {
 	 * Add new sub step component based on the given sub step descriptor. New
 	 * components are appended at the end of the owner step component layout.
 	 *
-	 * @param subStep a sub step descriptor object for the new component
+	 * @param subStep
+	 *          a sub step descriptor object for the new component
 	 */
 	public void addSubStep(SubStep subStep) {
 		StepElement ownerStepElement = getStepElements().collect(Collectors.toList())
-				.get(indexOf(subStep.getOwner().getUid()));
+		    .get(indexOf(subStep.getOwner().getUid()));
 		ownerStepElement.getElement().appendChild(new StepElement(ensureUID(subStep)).getElement());
 	}
 
@@ -428,28 +439,32 @@ public class Gantt extends Component implements HasSize {
 	 * already exists based on its UID, then it will be moved. See
 	 * {@link #moveStep(int, GanttStep)}.
 	 *
-	 * @param index zero based index for new position
-	 * @param step  a step descriptor object for the new or existing component
+	 * @param index
+	 *          zero based index for new position
+	 * @param step
+	 *          a step descriptor object for the new or existing component
 	 */
 	public void addStep(int index, Step step) {
-        if (contains(ensureUID(step))) {
-            moveStep(index, step);
-        } else {
-        	getElement().insertChild(index, new StepElement(ensureUID(step)).getElement());
-        	fireDataChangeEvent();
-        }
-    }
+		if (contains(ensureUID(step))) {
+			moveStep(index, step);
+		} else {
+			getElement().insertChild(index, new StepElement(ensureUID(step)).getElement());
+			fireDataChangeEvent();
+		}
+	}
 
 	/**
 	 * Moves given step or sub step. Same as {@link #moveStep(int, Step)} or
 	 * {@link #moveSubStep(int, SubStep)} depending on which type of a component is
 	 * being moved based on the UID for the given {@link GanttStep}.
 	 *
-	 * @param toIndex Target zero based index where to move the step
-	 * @param anyStep step or sub step descriptor of the moved step
+	 * @param toIndex
+	 *          Target zero based index where to move the step
+	 * @param anyStep
+	 *          step or sub step descriptor of the moved step
 	 */
 	public void moveStep(int toIndex, GanttStep anyStep) {
-		if(anyStep.isSubstep()) {
+		if (anyStep.isSubstep()) {
 			moveSubStep(toIndex, (SubStep) anyStep);
 		} else {
 			moveStep(toIndex, (Step) anyStep);
@@ -463,38 +478,40 @@ public class Gantt extends Component implements HasSize {
 	 * components are moved to the new step component. Context menus and tooltips
 	 * are recreated for the new step component.
 	 *
-	 * @param toIndex Target zero based index where to move the step
-	 * @param step    step descriptor of the moved step
+	 * @param toIndex
+	 *          Target zero based index where to move the step
+	 * @param step
+	 *          step descriptor of the moved step
 	 */
-    public void moveStep(int toIndex, Step step) {
-        if (!contains(step)) {
-            return;
-        }
-        String targetStepUid = getStepElements().collect(Collectors.toList()).get(toIndex).getUid();
-        int fromIndex = indexOf(step);
-        Step moveStep = step;
-        if (!targetStepUid.equals(moveStep.getUid())) {
-        	var subStepEements = getSubStepElements(moveStep.getUid());
-        	// memorize context menu builders before removing old element with builders.
-        	var contextMenuBuilders = getStepElementOptional(moveStep.getUid()).map(StepElement::getContextMenuBuilders).orElse(List.of());
+	public void moveStep(int toIndex, Step step) {
+		if (!contains(step)) {
+			return;
+		}
+		String targetStepUid = getStepElements().collect(Collectors.toList()).get(toIndex).getUid();
+		int fromIndex = indexOf(step);
+		Step moveStep = step;
+		if (!targetStepUid.equals(moveStep.getUid())) {
+			var subStepEements = getSubStepElements(moveStep.getUid());
+			// memorize context menu builders before removing old element with builders.
+			var contextMenuBuilders = getStepElementOptional(moveStep.getUid()).map(StepElement::getContextMenuBuilders).orElse(List.of());
 			// and also tooltips.
-			var tooltips =  getStepElementOptional(moveStep.getUid()).map(StepElement::getTooltips).orElse(List.of());
-        	getStepElementOptional(moveStep.getUid()).ifPresent(StepElement::removeFromParent);
-        	StepElement stepElement = new StepElement(moveStep);
-        	subStepEements.forEach(subStepElement -> stepElement.getElement().appendChild(subStepElement.getElement()));
-        	if(fromIndex <= toIndex) {
-        		getElement().insertChild(indexOf(targetStepUid) + 1, stepElement.getElement());
-        	} else {
-        		getElement().insertChild(indexOf(targetStepUid), stepElement.getElement());
-        	}
-        	// add context menu builders back in the end.
+			var tooltips = getStepElementOptional(moveStep.getUid()).map(StepElement::getTooltips).orElse(List.of());
+			getStepElementOptional(moveStep.getUid()).ifPresent(StepElement::removeFromParent);
+			StepElement stepElement = new StepElement(moveStep);
+			subStepEements.forEach(subStepElement -> stepElement.getElement().appendChild(subStepElement.getElement()));
+			if (fromIndex <= toIndex) {
+				getElement().insertChild(indexOf(targetStepUid) + 1, stepElement.getElement());
+			} else {
+				getElement().insertChild(indexOf(targetStepUid), stepElement.getElement());
+			}
+			// add context menu builders back in the end.
 			contextMenuBuilders.stream().forEach(stepElement::addContextMenu);
 			// and tooltips.
 			tooltips.forEach(stepElement::addTooltip);
-        	fireDataChangeEvent();
-        }
-        updateSubStepsByMovedOwner(moveStep.getUid());
-    }
+			fireDataChangeEvent();
+		}
+		updateSubStepsByMovedOwner(moveStep.getUid());
+	}
 
 	/**
 	 * Move given existing substep to the given index. Index is based on the state
@@ -505,8 +522,10 @@ public class Gantt extends Component implements HasSize {
 	 * inside it. Other substep component are not touched. Context menus and tooltips
 	 * are recreated for the new substep component.
 	 *
-	 * @param toIndex Target zero based index where to move the substep
-	 * @param subStep substep descriptor of the moved substep
+	 * @param toIndex
+	 *          Target zero based index where to move the substep
+	 * @param subStep
+	 *          substep descriptor of the moved substep
 	 */
 	public void moveSubStep(int toIndex, SubStep subStep) {
 		if (!contains(subStep)) {
@@ -522,7 +541,7 @@ public class Gantt extends Component implements HasSize {
 			// and also tooltips.
 			var tooltips = ofNullable(substepElement).map(StepElement::getTooltips).orElse(List.of());
 			getSubStepElements().filter(item -> item.getUid().equals(subStep.getUid())).findFirst()
-					.ifPresent(StepElement::removeFromParent);
+			    .ifPresent(StepElement::removeFromParent);
 			subStep.setOwner(getStep(targetStepUid));
 			substepElement = new StepElement(subStep);
 			stepElement.getElement().appendChild(substepElement.getElement());
@@ -533,14 +552,16 @@ public class Gantt extends Component implements HasSize {
 		}
 		subStep.updateOwnerDatesBySubStep();
 		stepElement.refresh();
-    }
+	}
 
 	/**
 	 * Removes all given steps if they exists, based on their UIDs.
-	 * @param steps collection of steps, null does nothing
+	 *
+	 * @param steps
+	 *          collection of steps, null does nothing
 	 */
 	public void removeSteps(Collection<Step> steps) {
-		if(steps != null) {
+		if (steps != null) {
 			removeSteps(steps.stream());
 		}
 	}
@@ -548,10 +569,11 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Removes all given steps if they exists, based on their UIDs.
 	 *
-	 * @param steps a varargs of steps, null does nothing
+	 * @param steps
+	 *          a varargs of steps, null does nothing
 	 */
 	public void removeSteps(Step... steps) {
-		if(steps != null) {
+		if (steps != null) {
 			removeSteps(Stream.of(steps));
 		}
 	}
@@ -560,10 +582,11 @@ public class Gantt extends Component implements HasSize {
 	 * Removes all given steps looped through the given Stream if they exists, based
 	 * on their UIDs.
 	 *
-	 * @param steps Stream of steps, null does nothing
+	 * @param steps
+	 *          Stream of steps, null does nothing
 	 */
 	public void removeSteps(Stream<Step> steps) {
-		if(steps == null) {
+		if (steps == null) {
 			return;
 		}
 		steps.forEach(this::doRemoveStep);
@@ -573,7 +596,8 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Removes Step or sub step if it exists, based on the given UID.
 	 *
-	 * @param uid Target UID for step or sub step to remove
+	 * @param uid
+	 *          Target UID for step or sub step to remove
 	 * @return boolean true if step or sub step was removed, false otherwise
 	 */
 	public boolean removeAnyStep(String uid) {
@@ -583,7 +607,8 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Removes Step or sub step if it exists, based on its UID.
 	 *
-	 * @param step Target step or sub step to remove
+	 * @param step
+	 *          Target step or sub step to remove
 	 * @return boolean true if step or sub step was removed, false otherwise
 	 */
 	public boolean removeAnyStep(GanttStep step) {
@@ -593,14 +618,15 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Removes given Step if it exists, based on its UID.
 	 *
-	 * @param step Target step to remove
+	 * @param step
+	 *          Target step to remove
 	 * @return boolean true if step was removed, false otherwise
 	 */
 	public boolean removeStep(Step step) {
 		if (step == null) {
 			return false;
 		}
-		if(doRemoveStep(step)) {
+		if (doRemoveStep(step)) {
 			fireDataChangeEvent();
 			return true;
 		}
@@ -647,7 +673,8 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Reset given datetime to timeline minimum for the given resolution.
 	 *
-	 * @param dateTime Target datetime
+	 * @param dateTime
+	 *          Target datetime
 	 * @return Truncated {@link LocalDateTime} or null with a null date.
 	 * @see {@link GanttUtil#resetTimeToMin(LocalDateTime, Resolution)}
 	 */
@@ -658,7 +685,8 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Reset given datetime to timeline maximum for the given resolution.
 	 *
-	 * @param dateTime Target datetime
+	 * @param dateTime
+	 *          Target datetime
 	 * @return Truncated {@link LocalDateTime} or null with a null date.
 	 * @see {@link GanttUtil#resetTimeToMax(LocalDateTime, Resolution)}
 	 */
@@ -683,47 +711,49 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Returns {@link StepElement} stream excluding sub-steps.
 	 */
-    public Stream<StepElement> getStepElements() {
-		return getChildren().filter(child -> child instanceof StepElement).map(StepElement.class::cast);
+	public Stream<StepElement> getStepElements() {
+		return getChildren().filter(StepElement.class::isInstance).map(StepElement.class::cast);
 	}
 
 	/**
 	 * Returns {@link Step} stream excluding sub-steps.
 	 */
-    public Stream<Step> getSteps() {
-		return getChildren().filter(child -> child instanceof StepElement).map(StepElement.class::cast)
-				.map(StepElement::getModel).map(Step.class::cast);
+	public Stream<Step> getSteps() {
+		return getChildren().filter(StepElement.class::isInstance).map(StepElement.class::cast)
+		    .map(StepElement::getModel).map(Step.class::cast);
 	}
 
 	/**
 	 * Returns a list of {@link Step} objects excluding sub-steps.
 	 */
-    public List<Step> getStepsList() {
-    	return getSteps().collect(Collectors.toList());
-    }
+	public List<Step> getStepsList() {
+		return getSteps().collect(Collectors.toList());
+	}
 
-    /**
-     * Returns {@link StepElement} stream of all steps including sub steps.
-     */
+	/**
+	 * Returns {@link StepElement} stream of all steps including sub steps.
+	 */
 	public Stream<StepElement> getFlatStepElements() {
 		Stream.Builder<StepElement> streamBuilder = Stream.builder();
 		getStepElements().forEach(step -> {
 			streamBuilder.add(step);
-			step.getChildren().filter(child -> child instanceof StepElement).map(StepElement.class::cast)
-					.forEach(streamBuilder::add);
+			step.getChildren().filter(StepElement.class::isInstance).map(StepElement.class::cast)
+			    .forEach(streamBuilder::add);
 		});
 		return streamBuilder.build();
 	}
 
 	/**
 	 * Returns {@link StepElement} stream for the given step UID.
-	 * @param forStepUid Target step UID
+	 *
+	 * @param forStepUid
+	 *          Target step UID
 	 * @return {@link StepElement} {@link Stream}
 	 */
 	public Stream<StepElement> getSubStepElements(String forStepUid) {
 		StepElement stepEl = getStepElement(forStepUid);
 		if (stepEl != null) {
-			return stepEl.getChildren().filter(child -> child instanceof StepElement).map(StepElement.class::cast);
+			return stepEl.getChildren().filter(StepElement.class::isInstance).map(StepElement.class::cast);
 		}
 		return Stream.empty();
 	}
@@ -731,65 +761,70 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Returns {@link StepElement} stream of all sub-steps.
 	 */
-    public Stream<StepElement> getSubStepElements() {
-		return getStepElements().flatMap(step -> step.getChildren().filter(child -> child instanceof StepElement))
-				.map(StepElement.class::cast);
+	public Stream<StepElement> getSubStepElements() {
+		return getStepElements().flatMap(step -> step.getChildren().filter(StepElement.class::isInstance))
+		    .map(StepElement.class::cast);
 	}
 
 	/**
 	 * Returns true if given UID matches with any existing step including sub step.
 	 *
-	 * @param targetUid Target UID
+	 * @param targetUid
+	 *          Target UID
 	 * @return boolean true if UID exists
 	 */
-    public boolean contains(String targetUid) {
-        return getFlatStepElements()
-        		.anyMatch(step -> step.getUid().equals(targetUid));
-    }
+	public boolean contains(String targetUid) {
+		return getFlatStepElements()
+		    .anyMatch(step -> step.getUid().equals(targetUid));
+	}
 
 	/**
 	 * Returns true if given {@link GanttStep}'s UID matches with any existing step
 	 * including sub step.
 	 *
-	 * @param targetStep Target step or sub step
+	 * @param targetStep
+	 *          Target step or sub step
 	 * @return boolean true if UID exists
 	 */
-    public boolean contains(GanttStep targetStep) {
-        return getFlatStepElements()
-        		.anyMatch(step -> step.getUid().equals(targetStep.getUid()));
-    }
+	public boolean contains(GanttStep targetStep) {
+		return getFlatStepElements()
+		    .anyMatch(step -> step.getUid().equals(targetStep.getUid()));
+	}
 
 	/**
 	 * Returns true if given {@link Step}'s UID matches with any existing step
 	 * excluding sub step.
 	 *
-	 * @param targetStep Target step
+	 * @param targetStep
+	 *          Target step
 	 * @return boolean true if step with the UID exists
 	 */
 	public boolean contains(Step targetStep) {
 		return contains(getStepElements(), targetStep.getUid());
-    }
+	}
 
 	/**
 	 * Returns true if given {@link SubStep}'s UID matches with any existing sub step.
 	 *
-	 * @param targetSubStep Target sub step
+	 * @param targetSubStep
+	 *          Target sub step
 	 * @return boolean true if sub step with the UID exists
 	 */
 	public boolean contains(SubStep targetSubStep) {
-        return contains(getSubStepElements(), targetSubStep.getUid());
-    }
+		return contains(getSubStepElements(), targetSubStep.getUid());
+	}
 
 	private boolean contains(Stream<StepElement> stream, String targetUid) {
-        return stream
-        		.filter(child -> child instanceof StepElement).map(StepElement.class::cast)
-        		.anyMatch(step -> step.getUid().equals(targetUid));
-    }
+		return stream
+		    .filter(StepElement.class::isInstance).map(StepElement.class::cast)
+		    .anyMatch(step -> step.getUid().equals(targetUid));
+	}
 
 	/**
 	 * Returns a zero based index of the given {@link Step}.
 	 *
-	 * @param step Target {@link Step}
+	 * @param step
+	 *          Target {@link Step}
 	 * @return zero based index
 	 */
 	public int indexOf(Step step) {
@@ -800,70 +835,75 @@ public class Gantt extends Component implements HasSize {
 	 * Returns a zero based index of the given UID for a step or sub step. For sub
 	 * steps index is based on the owner step.
 	 *
-	 * @param stepUid Target UID
+	 * @param stepUid
+	 *          Target UID
 	 * @return zero based index
 	 */
-    public int indexOf(String stepUid) {
-    	GanttStep step = getAnyStep(stepUid);
-    	if(step.isSubstep()) {
-    		step = ((SubStep) step).getOwner();
-    	}
-    	List<String> uidList = getStepElements().map(StepElement::getUid).collect(Collectors.toList());
-        return uidList.indexOf(step.getUid());
-    }
+	public int indexOf(String stepUid) {
+		GanttStep step = getAnyStep(stepUid);
+		if (step.isSubstep()) {
+			step = ((SubStep) step).getOwner();
+		}
+		List<String> uidList = getStepElements().map(StepElement::getUid).collect(Collectors.toList());
+		return uidList.indexOf(step.getUid());
+	}
 
 	/**
 	 * Returns {@link SubStep} by the UID or null if it doesn't exist.
 	 *
-	 * @param uid Target UID
+	 * @param uid
+	 *          Target UID
 	 * @return {@link SubStep} or null
 	 */
-    public SubStep getSubStep(String uid) {
+	public SubStep getSubStep(String uid) {
 		return getSubStepElements().filter(step -> Objects.equals(uid, step.getUid())).findFirst()
-				.map(StepElement::getModel).map(SubStep.class::cast).orElse(null);
+		    .map(StepElement::getModel).map(SubStep.class::cast).orElse(null);
 	}
 
 	/**
 	 * Returns {@link Step} by the UID or null if it doesn't exist.
 	 *
-	 * @param uid Target UID
+	 * @param uid
+	 *          Target UID
 	 * @return {@link Step} or null
 	 */
 	public Step getStep(String uid) {
 		return getStepElements().filter(step -> Objects.equals(uid, step.getUid())).findFirst()
-				.map(StepElement::getModel).map(Step.class::cast).orElse(null);
+		    .map(StepElement::getModel).map(Step.class::cast).orElse(null);
 	}
 
 	/**
 	 * Returns {@link GanttStep} by <code>uid</code>. Including sub-steps.
 	 */
-    public GanttStep getAnyStep(String uid) {
-    	return getFlatStepElements().filter(step -> Objects.equals(uid, step.getUid())).findFirst()
-				.map(StepElement::getModel).orElse(null);
-    }
+	public GanttStep getAnyStep(String uid) {
+		return getFlatStepElements().filter(step -> Objects.equals(uid, step.getUid())).findFirst()
+		    .map(StepElement::getModel).orElse(null);
+	}
 
 	/**
 	 * Updates sub step start and end dates for moved owner step.
 	 *
-	 * @param stepUid Target owner step UID
+	 * @param stepUid
+	 *          Target owner step UID
 	 */
-    public void updateSubStepsByMovedOwner(String stepUid) {
-    	Step step = getStep(stepUid);
+	public void updateSubStepsByMovedOwner(String stepUid) {
+		Step step = getStep(stepUid);
 		// update sub-steps by moved owner
 		LocalDateTime previousStart = getSubStepElements(stepUid).map(StepElement::getModel)
-				.map(GanttStep::getStartDate).min(Comparator.naturalOrder()).orElse(step.getStartDate());
+		    .map(GanttStep::getStartDate).min(Comparator.naturalOrder()).orElse(step.getStartDate());
 		Duration delta = Duration.between(previousStart, step.getStartDate());
 		getSubStepElements(stepUid).forEach(substep -> {
 			substep.getModel().setStartDate(substep.getModel().getStartDate().plus(delta));
 			substep.getModel().setEndDate(substep.getModel().getEndDate().plus(delta));
 			substep.refresh();
 		});
-    }
+	}
 
 	/**
 	 * Refresh target step element if it exists.
 	 *
-	 * @param uid Target step UID
+	 * @param uid
+	 *          Target step UID
 	 */
 	public void refresh(String uid) {
 		var stepElement = getStepElement(uid);
@@ -873,29 +913,29 @@ public class Gantt extends Component implements HasSize {
 	}
 
 	/**
-     * Ensures that given step has UID. If not, then generates one.
-     */
-    protected <T extends GanttStep> T ensureUID(T step) {
-        if (step == null) {
-            return null;
-        }
-        if (step.getUid() == null || step.getUid().isEmpty()) {
-            step.setUid(UUID.randomUUID().toString());
-        }
-        return step;
-    }
+	 * Ensures that given step has UID. If not, then generates one.
+	 */
+	protected <T extends GanttStep> T ensureUID(T step) {
+		if (step == null) {
+			return null;
+		}
+		if (step.getUid() == null || step.getUid().isEmpty()) {
+			step.setUid(UUID.randomUUID().toString());
+		}
+		return step;
+	}
 
-    @Override
-    public void setWidth(String width) {
-    	getElement().getStyle().set("--gantt-element-width", Objects.requireNonNullElse(width, "auto"));
-    	getElement().callJsFunction("updateSize");
-    }
+	@Override
+	public void setWidth(String width) {
+		getElement().getStyle().set("--gantt-element-width", Objects.requireNonNullElse(width, "auto"));
+		getElement().callJsFunction("updateSize");
+	}
 
-    @Override
-    public void setHeight(String height) {
-    	getElement().getStyle().set("--gantt-element-height", Objects.requireNonNullElse(height, "auto"));
-    	getElement().callJsFunction("updateSize");
-    }
+	@Override
+	public void setHeight(String height) {
+		getElement().getStyle().set("--gantt-element-height", Objects.requireNonNullElse(height, "auto"));
+		getElement().callJsFunction("updateSize");
+	}
 
 	public Registration addGanttClickListener(ComponentEventListener<GanttClickEvent> listener) {
 		return addListener(GanttClickEvent.class, listener);
@@ -923,7 +963,8 @@ public class Gantt extends Component implements HasSize {
 	 * steps. Instance is available then with {@link #getCaptionGrid()}. This does
 	 * not attach component to any layout.
 	 *
-	 * @param header Header of the column
+	 * @param header
+	 *          Header of the column
 	 * @return A new {@link Grid} instance
 	 */
 	public Grid<Step> buildCaptionGrid(String header) {
@@ -932,10 +973,10 @@ public class Gantt extends Component implements HasSize {
 		this.captionGrid = grid;
 		grid.getStyle().set("--gantt-caption-grid-row-height", "30px");
 		grid.addClassName("gantt-caption-grid");
-		grid.addColumn(LitRenderer.<Step>of("<span>${item.caption}</span>").withProperty("caption", Step::getCaption))
-				.setHeader(header).setResizable(true);
+		grid.addColumn(LitRenderer.<Step> of("<span>${item.caption}</span>").withProperty("caption", Step::getCaption))
+		    .setHeader(header).setResizable(true);
 		captionGridColumnResizeListener = grid.addColumnResizeListener(event -> {
-			if(event.isFromClient()) {
+			if (event.isFromClient()) {
 				refreshForHorizontalScrollbar();
 			}
 		});
@@ -956,7 +997,7 @@ public class Gantt extends Component implements HasSize {
 	 * {@link #buildCaptionGrid(String)}.
 	 */
 	public void removeCaptionGrid() {
-		if(captionGrid != null) {
+		if (captionGrid != null) {
 			captionGridDataChangeListener.remove();
 			captionGridColumnResizeListener.remove();
 			getElement().executeJs("this.registerScrollElement(null)");
@@ -976,27 +1017,27 @@ public class Gantt extends Component implements HasSize {
 	}
 
 	protected void refreshForHorizontalScrollbar() {
-		if(captionGrid == null) {
+		if (captionGrid == null) {
 			return;
 		}
 		getElement().executeJs(
-				"""
-				let self = this;
-				this.updateComplete.then(() => {
-						$0.style.setProperty('--gantt-caption-grid-header-height', self._timeline.clientHeight+'px');
-						$0.$.table.style.width='calc(100% + '+self.scrollbarWidth+'px';
-						const left = $0.$.table.scrollLeft > 0;
-						const right = $0.$.table.scrollLeft < $0.$.table.scrollWidth - $0.$.table.clientWidth;
-						const gridOverflowX = left || right;
-						this._container.style.overflowX = (gridOverflowX) ? 'scroll' : 'auto';
-						if(self.isContentOverflowingHorizontally() && !gridOverflowX) {
-							$0.$.scroller.style.height = 'calc(100% - ' + self.scrollbarWidth + 'px)';
-						} else {
-							$0.$.scroller.style.removeProperty('height');
-						}
-					})
-				""",
-				captionGrid);
+		    """
+		        let self = this;
+		        this.updateComplete.then(() => {
+		        		$0.style.setProperty('--gantt-caption-grid-header-height', self._timeline.clientHeight+'px');
+		        		$0.$.table.style.width='calc(100% + '+self.scrollbarWidth+'px';
+		        		const left = $0.$.table.scrollLeft > 0;
+		        		const right = $0.$.table.scrollLeft < $0.$.table.scrollWidth - $0.$.table.clientWidth;
+		        		const gridOverflowX = left || right;
+		        		this._container.style.overflowX = (gridOverflowX) ? 'scroll' : 'auto';
+		        		if(self.isContentOverflowingHorizontally() && !gridOverflowX) {
+		        			$0.$.scroller.style.height = 'calc(100% - ' + self.scrollbarWidth + 'px)';
+		        		} else {
+		        			$0.$.scroller.style.removeProperty('height');
+		        		}
+		        	})
+		        """,
+		    captionGrid);
 	}
 
 	private void fireDataChangeEvent() {
