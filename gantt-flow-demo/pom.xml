@@ -8,16 +8,16 @@
 	<version>24.0.1.rjm</version>
     <packaging>jar</packaging>
 
-  
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <vaadin.version>24.2.3</vaadin.version>
+        <vaadin.version>24.5.2</vaadin.version>
         <jetty.version>11.0.14</jetty.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
+
 	<repositories>
         <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
 
@@ -44,7 +44,7 @@
             </snapshots>
         </repository>
     </repositories>
-	
+
 	<pluginRepositories>
         <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
         <pluginRepository>
@@ -61,7 +61,7 @@
             </url>
         </pluginRepository>
     </pluginRepositories>
-	
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -73,7 +73,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
 	<dependencies>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -136,7 +136,7 @@
     </build>
 
     <profiles>
- 
+
         <!-- Run (demo) in production mode-->
         <profile>
             <id>production</id>
@@ -149,7 +149,7 @@
                     <artifactId>flow-server-production-mode</artifactId>
                 </dependency>
             </dependencies>
-            
+
             <build>
                 <plugins>
                     <plugin>
