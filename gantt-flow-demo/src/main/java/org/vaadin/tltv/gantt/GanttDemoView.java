@@ -252,7 +252,7 @@ public class GanttDemoView extends VerticalLayout {
 		} else {
 			// Gantt can't know what was added/removed in data provider, so we need to call
 			// expand to trigger expand event listener in Gantt.
-			gantt.expand(parentStep);
+			gantt.expand(parentStep, false);
 		}
 	}
 

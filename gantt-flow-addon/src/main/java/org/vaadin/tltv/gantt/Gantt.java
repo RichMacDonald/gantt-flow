@@ -1051,7 +1051,7 @@ public class Gantt extends Component implements HasSize {
 		var dataProvider = new TreeDataProvider<>(treeData);
 		grid.setDataProvider(dataProvider);
 		grid.addExpandListener(event -> {
-			addChildStepRecursively(grid, event.getItems(), new MutableInt());
+			addChildStepRecursively(grid, event.getItems(), new MutableInt(), false);
 		});
 		grid.addCollapseListener(event -> {
 			removeChildStepRecursively(grid, event.getItems());
@@ -1102,21 +1102,28 @@ public class Gantt extends Component implements HasSize {
 		Step oldParent = treeData.getParent(step);
 		Step newParent = null;
 		int index = indexOf(step);
-		Step sibling = null;
+		Step prevNewSibling = null;
+		Step nextNewSibling = null;
 		if (index > 0) {
-			List<Step> flatSubTree = getFlatSubTreeRecursively(treeData, step);
-			sibling = getStepsList().get(index - 1);
-			if (!flatSubTree.contains(sibling)) {
-				if (Objects.equals(sibling, oldParent)) {
-					newParent = sibling;
-					sibling = null;
+			List<Step> oldFlatSubTree = getFlatSubTreeRecursively(treeData, step);
+			var stepList = getStepsList();
+			prevNewSibling = stepList.get(index - 1);
+			nextNewSibling = (stepList.size() > (index + 1)) ? getStepsList().get(index + 1) : null;
+			if (!oldFlatSubTree.contains(prevNewSibling)) {
+				if (Objects.equals(prevNewSibling, oldParent)) {
+					newParent = prevNewSibling;
+					prevNewSibling = null;
+				} else if (prevNewSibling != null && nextNewSibling != null
+						&& Objects.equals(prevNewSibling, treeData.getParent(nextNewSibling))) {
+					newParent = prevNewSibling;
+					prevNewSibling = null;
 				} else {
-					newParent = treeData.getParent(sibling);
+					newParent = treeData.getParent(prevNewSibling);
 				}
 				treeData.setParent(step, newParent);
-				treeData.moveAfterSibling(step, sibling);
+				treeData.moveAfterSibling(step, prevNewSibling);
 			} else {
-				sibling = null;
+				prevNewSibling = null;
 			}
 		} else {
 			treeData.setParent(step, newParent);
@@ -1126,18 +1133,18 @@ public class Gantt extends Component implements HasSize {
 		// First it updates the state tree in correct order by removing elements and adding elements, 
 		// then it removes all steps and adds them back to avoid processing previous changes in incorrect order in client side.
 		boolean isStepExpanded = getCaptionTreeGrid().isExpanded(step);
-		boolean isSiblingStepExpanded = sibling != null && getCaptionTreeGrid().isExpanded(sibling);
+		boolean isSiblingStepExpanded = prevNewSibling != null && getCaptionTreeGrid().isExpanded(prevNewSibling);
 		if(isStepExpanded) {
 			removeChildStepRecursively(getCaptionTreeGrid(), step);
 		}
 		if(isSiblingStepExpanded) {
-			removeChildStepRecursively(getCaptionTreeGrid(), sibling);
+			removeChildStepRecursively(getCaptionTreeGrid(), prevNewSibling);
 		}
 		if(isStepExpanded) {
 			expand(step);
 		}
 		if(isSiblingStepExpanded) {
-			expand(sibling);
+			expand(prevNewSibling);
 		}
 		if(isStepExpanded) {
 			// state tree changes are messed up now. DOM is correct. Need to reset it all.
@@ -1162,20 +1169,37 @@ public class Gantt extends Component implements HasSize {
 	/**
 	 * Expands all child steps directed by the caption TreeGrid's hierarchical data source.
 	 */
+	public void expand(Step item, boolean expandWholeSubTree) {
+		expand(List.of(item), expandWholeSubTree);
+	}
+
+	/**
+	 * Expands all child steps directed by the caption TreeGrid's hierarchical data source.
+	 */
 	public void expand(Collection<Step> items) {
+		expand(items, true);
+	}
+
+		/**
+	 * Expands all child steps directed by the caption TreeGrid's hierarchical data source.
+	 */
+	public void expand(Collection<Step> items, boolean expandWholeSubTree) {
 		if(getCaptionTreeGrid() == null) {
 			return;
 		}
-		addChildStepRecursively(getCaptionTreeGrid(), items, new MutableInt());
+		addChildStepRecursively(getCaptionTreeGrid(), items, new MutableInt(), expandWholeSubTree);
 	}
 
-	private void addChildStepRecursively(TreeGrid<Step> grid, Collection<Step> items, MutableInt index) {
-		items.forEach(item -> addChildStepRecursively(grid, item, index));
+	private void addChildStepRecursively(TreeGrid<Step> grid, Collection<Step> items, MutableInt index, boolean expandWholeSubTree) {
+		items.forEach(item -> addChildStepRecursively(grid, item, index, expandWholeSubTree));
 	}
 
-	private void addChildStepRecursively(TreeGrid<Step> grid, Step item, MutableInt index) {
+	private void addChildStepRecursively(TreeGrid<Step> grid, Step item, MutableInt index, boolean expandWholeSubTree) {
 		var dataProvider = grid.getDataProvider();
 		if (!dataProvider.hasChildren(item)) {
+			return;
+		}
+		if(!expandWholeSubTree && !grid.isExpanded(item)) {
 			return;
 		}
 		if (index.getValue() == 0) {
@@ -1184,7 +1208,7 @@ public class Gantt extends Component implements HasSize {
 		for (Step child : grid.getTreeData().getChildren(item)) {
 			addStep(index.getValue(), child, false);
 			index.increment();
-			addChildStepRecursively(grid, child, index);
+			addChildStepRecursively(grid, child, index, expandWholeSubTree);
 		}
 	}
 
