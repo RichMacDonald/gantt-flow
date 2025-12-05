@@ -1,6 +1,6 @@
 # Gantt Flow addon
 
-Project root of the Gantt component addon, Flow integration for Vaadin 24 platform.
+Project root of the Gantt component addon, Flow integration for Vaadin 25 platform.
 
 Multi-module Maven project with two modules: gantt-flow-addon and gantt-flow-demo. 
 
@@ -30,10 +30,6 @@ Timeline element and gantt element depends on following libraries:
 - Lit (https://lit.dev/)
 - date-fns (https://github.com/date-fns/date-fns) 
 - date-fns-tz (https://github.com/marnusw/date-fns-tz)
-
-# Known issues
-`formatInTimeZone` is not working in all cases (date-fns-tz 2.0.0). 
-E.g. Gantt with "Europe/Berlin" time-zone shows wrong hour when run in Browser with "Europe/Helsinki" timezone.
 
 # Install
 
