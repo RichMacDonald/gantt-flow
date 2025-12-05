@@ -5,17 +5,17 @@
     <groupId>org.vaadin.addons.tltv.gantt</groupId>
     <artifactId>gantt-flow-addon</artifactId>
     <name>Gantt Flow Add-on</name>
-    <version>24.0.2</version>
+    <version>25.0.0</version>
     <packaging>jar</packaging>
 
   
    	<properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <vaadin.version>24.8.5</vaadin.version>
+        <vaadin.version>25.0.0-beta9</vaadin.version>
     </properties>
     
     <organization>

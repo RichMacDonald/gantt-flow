@@ -223,16 +223,16 @@ public class GanttDemoView extends VerticalLayout {
 			var targetStep = gantt.getStepsList().get(clickedBackgroundIndex);
 			backgroundContextMenu.addItem("Add sub-step for " + targetStep.getCaption(),
 					e -> onHandleAddSubStepContextMenuAction(targetStep.getUid()));
-			backgroundContextMenu.add(new Hr());
+			backgroundContextMenu.addComponent(new Hr());
 			backgroundContextMenu.addItem("Remove step " + targetStep.getCaption(),
 					e -> onHandleRemoveStepContextMenuAction(targetStep.getUid()));
 			if (gantt.getCaptionTreeGrid() != null) {
-				backgroundContextMenu.add(new Hr());
+				backgroundContextMenu.addComponent(new Hr());
 				backgroundContextMenu.addItem("TreeGrid: Add new child step for " + targetStep.getCaption(),
 						e -> onAddTreeGridChildStep(targetStep.getUid()));
 			}
-			backgroundContextMenu.add(new Hr());
-			backgroundContextMenu.add(createProgressEditor(gantt.getStepElement(targetStep.getUid())));
+			backgroundContextMenu.addComponent(new Hr());
+			backgroundContextMenu.addComponent(createProgressEditor(gantt.getStepElement(targetStep.getUid())));
 		});
 	}
 	
@@ -264,11 +264,11 @@ public class GanttDemoView extends VerticalLayout {
 			var targetStep = gantt.getStepsList().get(clickedBackgroundIndex);
 			contextMenu.addItem("Add sub-step for " + targetStep.getCaption(),
 					e -> onHandleAddSubStepContextMenuAction(targetStep.getUid()));
-			contextMenu.add(new Hr());
+			contextMenu.addComponent(new Hr());
 			contextMenu.addItem("Remove step " + stepElement.getCaption(),
 					e -> onHandleRemoveStepContextMenuAction(uid));
-			contextMenu.add(new Hr());
-			contextMenu.add(createProgressEditor(stepElement));
+			contextMenu.addComponent(new Hr());
+			contextMenu.addComponent(createProgressEditor(stepElement));
 		});
 	}
 	

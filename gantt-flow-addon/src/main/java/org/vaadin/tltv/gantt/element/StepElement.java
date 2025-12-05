@@ -109,7 +109,7 @@ public class StepElement extends Component implements HasComponents {
 		ContextMenu contextMenu = new ContextMenu();
 		contextMenu.setTarget(this);
 		var reg = getElement().addEventListener("vaadin-context-menu-before-open", event -> {
-			builder.accept(contextMenu, event.getEventData().getString("element.uid"));
+			builder.accept(contextMenu, event.getEventData().get("element.uid").asString());
 		}).addEventData("element.uid");
 		contextMenuDomListenerRegistrations.add(new Registration() {
 			private static final long serialVersionUID = 7711223599693115951L;

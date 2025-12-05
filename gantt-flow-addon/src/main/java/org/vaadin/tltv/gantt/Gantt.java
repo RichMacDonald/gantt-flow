@@ -39,10 +39,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.vaadin.tltv.gantt.element.StepElement;
 import org.vaadin.tltv.gantt.event.GanttClickEvent;
 import org.vaadin.tltv.gantt.event.GanttDataChangeEvent;
@@ -68,10 +68,10 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 import com.vaadin.flow.data.renderer.LitRenderer;
+import com.vaadin.flow.internal.JacksonUtils;
 import com.vaadin.flow.shared.Registration;
 
-import elemental.json.JsonArray;
-import elemental.json.impl.JreJsonFactory;
+import tools.jackson.databind.node.ArrayNode;
 
 import static java.util.Optional.ofNullable;
 
@@ -90,11 +90,11 @@ import static java.util.Optional.ofNullable;
 @Tag("gantt-element")
 @NpmPackage(value = "tltv-gantt-element", version = "1.0.30")
 @NpmPackage(value = "tltv-timeline-element", version = "1.0.20")
+@NpmPackage(value = "date-fns", version = "4.1.0") // remove when tltv-gantt-element>1.0.30
+@NpmPackage(value = "date-fns-tz", version = "3.0.0") // remove when tltv-gantt-element>1.0.30
 @JsModule("tltv-gantt-element/dist/src/gantt-element.js")
 @CssImport(value = "gantt-grid.css", themeFor = "vaadin-grid")
 public class Gantt extends Component implements HasSize {
-
-	private final JreJsonFactory jsonFactory = new JreJsonFactory();
 
 	private Grid<Step> captionGrid;
 	private Registration captionGridDataChangeListener;
@@ -695,9 +695,9 @@ public class Gantt extends Component implements HasSize {
 	}
 
 	private void setArrayProperty(String name, String[] array) {
-		final JsonArray jsonArray = jsonFactory.createArray();
+		final ArrayNode jsonArray = JacksonUtils.createArrayNode();
 		for (int index = 0; index < array.length; index++) {
-			jsonArray.set(index, array[index]);
+			jsonArray.add(array[index]);
 		}
 		getElement().executeJs("this." + name + " = $0;", jsonArray);
 	}
@@ -1051,7 +1051,7 @@ public class Gantt extends Component implements HasSize {
 		var dataProvider = new TreeDataProvider<>(treeData);
 		grid.setDataProvider(dataProvider);
 		grid.addExpandListener(event -> {
-			addChildStepRecursively(grid, event.getItems(), new MutableInt(), false);
+			addChildStepRecursively(grid, event.getItems(), new AtomicInteger(), false);
 		});
 		grid.addCollapseListener(event -> {
 			removeChildStepRecursively(grid, event.getItems());
@@ -1187,14 +1187,14 @@ public class Gantt extends Component implements HasSize {
 		if(getCaptionTreeGrid() == null) {
 			return;
 		}
-		addChildStepRecursively(getCaptionTreeGrid(), items, new MutableInt(), expandWholeSubTree);
+		addChildStepRecursively(getCaptionTreeGrid(), items, new AtomicInteger(), expandWholeSubTree);
 	}
 
-	private void addChildStepRecursively(TreeGrid<Step> grid, Collection<Step> items, MutableInt index, boolean expandWholeSubTree) {
+	private void addChildStepRecursively(TreeGrid<Step> grid, Collection<Step> items, AtomicInteger index, boolean expandWholeSubTree) {
 		items.forEach(item -> addChildStepRecursively(grid, item, index, expandWholeSubTree));
 	}
 
-	private void addChildStepRecursively(TreeGrid<Step> grid, Step item, MutableInt index, boolean expandWholeSubTree) {
+	private void addChildStepRecursively(TreeGrid<Step> grid, Step item, AtomicInteger index, boolean expandWholeSubTree) {
 		var dataProvider = grid.getDataProvider();
 		if (!dataProvider.hasChildren(item)) {
 			return;
@@ -1202,12 +1202,12 @@ public class Gantt extends Component implements HasSize {
 		if(!expandWholeSubTree && !grid.isExpanded(item)) {
 			return;
 		}
-		if (index.getValue() == 0) {
-			index.setValue(getStepsList().indexOf(item) + 1);
+		if (index.get() == 0) {
+			index.set(getStepsList().indexOf(item) + 1);
 		}
 		for (Step child : grid.getTreeData().getChildren(item)) {
-			addStep(index.getValue(), child, false);
-			index.increment();
+			addStep(index.get(), child, false);
+			index.incrementAndGet();
 			addChildStepRecursively(grid, child, index, expandWholeSubTree);
 		}
 	}
