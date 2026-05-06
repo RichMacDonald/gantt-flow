@@ -35,6 +35,7 @@ public class StepElement extends Component implements HasComponents {
 	public StepElement(GanttStep model) {
 		this.model = model;
 		this.uid = model.getUid();
+		model.setElement(this);
 		
 		getElement().setProperty("uid", this.uid);
 		refresh();

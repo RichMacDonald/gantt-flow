@@ -29,6 +29,15 @@
         </license>
     </licenses>
 
+    <distributionManagement>
+        <repository>
+          <id>github-gantt-flow</id>
+          <name>github richmacdonald gantt flow</name>
+          <url>https://maven.pkg.github.com/richmacdonald/gantt-flow</url>
+        </repository>
+      </distributionManagement>
+
+
 	<repositories>
         <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
 
@@ -91,6 +100,14 @@
             <artifactId>vaadin-core</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!--Nullability annotations-->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
 	</dependencies>
 
     <profiles>

@@ -1,10 +1,10 @@
 package org.vaadin.tltv.gantt.model;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Objects;
 import org.vaadin.tltv.gantt.Gantt;
 import org.vaadin.tltv.gantt.element.StepElement;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
 
 /**
  * Abstract base class describing a step inside {@link Gantt} component.
@@ -24,6 +24,7 @@ public abstract class GanttStep {
     private boolean movable = true;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private StepElement stepElement;
 
     /** Application specific optional identifier. */
     public Long getIdentifier() {
@@ -177,6 +178,9 @@ public abstract class GanttStep {
      */
     public void setStartDate(LocalDateTime startDate) {
         this.startDate = startDate;
+        if (stepElement != null) {
+        		stepElement.setStartDateTime(startDate);
+        }
     }
 
     /**
@@ -191,6 +195,9 @@ public abstract class GanttStep {
      */
     public void setEndDate(LocalDateTime endDate) {
         this.endDate = endDate;
+        if (stepElement != null) {
+      		stepElement.setEndDateTime(endDate);
+      }
     }
 
     public abstract boolean isSubstep();
@@ -221,5 +228,13 @@ public abstract class GanttStep {
         }
         return true;
     }
+
+    /**
+     * If we moved the GanttSetp, it doesn't move the StepElement.
+     * So store a reference to the StepElement, so we can move it after creation
+     */
+		public void setElement(StepElement stepElement) {
+			this.stepElement = stepElement;
+		}
 
 }

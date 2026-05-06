@@ -11,18 +11,26 @@ import com.vaadin.flow.component.EventData;
 public class StepClickEvent extends ComponentEvent<Gantt> {
 
 	private final String uid;
-	
-	public StepClickEvent(Gantt source, boolean fromClient, @EventData("event.detail.uid") String uid) {
+	private final Integer button;
+
+	public StepClickEvent(Gantt source, boolean fromClient,
+			@EventData("event.detail.uid") String uid,
+			@EventData("event.detail.event.button") Integer button) {
 		super(source, fromClient);
 		this.uid = uid;
+		this.button = button;
 	}
 
 	public GanttStep getAnyStep() {
 		return getSource().getAnyStep(uid);
 	}
-	
+
 	public int getIndex() {
 		return getSource().indexOf(uid);
 	}
-	
+
+	public Integer getButton() {
+		return button;
+	}
+
 }
